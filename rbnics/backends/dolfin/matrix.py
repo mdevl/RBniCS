@@ -16,7 +16,7 @@
 # along with RBniCS. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dolfin.cpp.la import GenericMatrix
+from dolfin.cpp.la import PETScMatrix
 from rbnics.backends.dolfin.function import Function
 from rbnics.backends.dolfin.wrapping import to_petsc4py
 from rbnics.backends.dolfin.wrapping.dirichlet_bc import InvertProductOutputDirichletBC
@@ -26,30 +26,30 @@ def Matrix():
     
 # Attach a Type() function
 def Type():
-    return GenericMatrix
+    return PETScMatrix
 Matrix.Type = Type
 
 # pybind11 wrappers do not define __radd__ and __rsub__
 def set_roperator(operator, roperator):
-    original_operator = getattr(GenericMatrix, operator)
+    original_operator = getattr(PETScMatrix, operator)
     def custom_roperator(self, other):
         return original_operator(other, self)
-    setattr(GenericMatrix, roperator, custom_roperator)
+    setattr(PETScMatrix, roperator, custom_roperator)
 for (operator, roperator) in zip(("__add__", "__sub__"), ("__radd__", "__rsub__")):
     set_roperator(operator, roperator)
 
 # Enable matrix*function product (i.e. matrix*function.vector())
-original__mul__ = GenericMatrix.__mul__
+original__mul__ = PETScMatrix.__mul__
 def custom__mul__(self, other):
     if isinstance(other, Function.Type()):
         return original__mul__(self, other.vector())
     else:
         return original__mul__(self, other)
-GenericMatrix.__mul__ = custom__mul__
+PETScMatrix.__mul__ = custom__mul__
 
 # Preserve generator attribute in algebraic operators, as required by DEIM
 def preserve_generator_attribute(operator):
-    original_operator = getattr(GenericMatrix, operator)
+    original_operator = getattr(PETScMatrix, operator)
     def custom_operator(self, other):
         if hasattr(self, "generator"):
             output = original_operator(self, other)
@@ -57,7 +57,7 @@ def preserve_generator_attribute(operator):
             return output
         else:
             return original_operator(self, other)
-    setattr(GenericMatrix, operator, custom_operator)
+    setattr(PETScMatrix, operator, custom_operator)
     
 for operator in ("__add__", "__radd__", "__iadd__", "__sub__", "__rsub__", "__isub__", "__mul__", "__imul__", "__truediv__", "__itruediv__"):
     preserve_generator_attribute(operator)
@@ -74,4 +74,4 @@ def custom__and__(self, other):
         return output
     else:
         return NotImplemented
-setattr(GenericMatrix, "__and__", custom__and__)
+setattr(PETScMatrix, "__and__", custom__and__)

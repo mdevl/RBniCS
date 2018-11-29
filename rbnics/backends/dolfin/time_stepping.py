@@ -18,8 +18,8 @@
 
 from petsc4py import PETSc
 from ufl import Form
-from dolfin import assemble, DirichletBC, PETScMatrix, PETScVector
-from dolfin.cpp.la import GenericMatrix, GenericVector
+from dolfin import assemble, DirichletBC
+from dolfin.cpp.la import PETScMatrix, PETScVector
 from rbnics.backends.abstract import TimeStepping as AbstractTimeStepping, TimeDependentProblemWrapper
 from rbnics.backends.basic.wrapping.petsc_ts_integrator import BasicPETScTSIntegrator
 from rbnics.backends.dolfin.assign import assign
@@ -119,11 +119,11 @@ class _TimeDependentProblem(object):
         evaluate(residual_form, tensor=self.residual_vector)
         
     @overload
-    def _residual_vector_assemble(self, residual_vector: GenericVector):
+    def _residual_vector_assemble(self, residual_vector: PETScVector):
         return residual_vector
         
     @overload
-    def _residual_vector_assemble(self, residual_vector_input: GenericVector, petsc_residual: PETSc.Vec):
+    def _residual_vector_assemble(self, residual_vector_input: PETScVector, petsc_residual: PETSc.Vec):
         self.residual_vector = PETScVector(petsc_residual)
         to_petsc4py(residual_vector_input).swap(petsc_residual)
         
@@ -211,11 +211,11 @@ class _TimeDependentProblem(object):
         evaluate(jacobian_form, tensor=self.jacobian_matrix)
         
     @overload
-    def _jacobian_matrix_assemble(self, jacobian_matrix: GenericMatrix):
+    def _jacobian_matrix_assemble(self, jacobian_matrix: PETScMatrix):
         return jacobian_matrix
         
     @overload
-    def _jacobian_matrix_assemble(self, jacobian_matrix_input: GenericMatrix, petsc_jacobian: PETSc.Mat):
+    def _jacobian_matrix_assemble(self, jacobian_matrix_input: PETScMatrix, petsc_jacobian: PETSc.Mat):
         self.jacobian_matrix = PETScMatrix(petsc_jacobian)
         self.jacobian_matrix.zero()
         self.jacobian_matrix += jacobian_matrix_input

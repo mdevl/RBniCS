@@ -17,7 +17,7 @@
 #
 
 from dolfin import as_backend_type, Function
-from dolfin.cpp.la import GenericMatrix, GenericVector
+from dolfin.cpp.la import PETScMatrix, PETScVector
 from rbnics.utils.decorators import overload
 
 @overload
@@ -25,9 +25,9 @@ def to_petsc4py(function: Function):
     return to_petsc4py(function.vector())
 
 @overload
-def to_petsc4py(vector: GenericVector):
+def to_petsc4py(vector: PETScVector):
     return as_backend_type(vector).vec()
     
 @overload
-def to_petsc4py(matrix: GenericMatrix):
+def to_petsc4py(matrix: PETScMatrix):
     return as_backend_type(matrix).mat()

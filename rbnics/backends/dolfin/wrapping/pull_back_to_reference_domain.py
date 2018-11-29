@@ -35,7 +35,7 @@ from ufl.corealg.map_dag import map_expr_dag
 from ufl.corealg.traversal import pre_traversal, traverse_unique_terminals
 from ufl.indexed import Indexed
 from dolfin import assemble, cells, compile_cpp_code, CompiledExpression, Constant, Expression, facets
-from dolfin.cpp.la import GenericMatrix, GenericVector
+from dolfin.cpp.la import PETScMatrix, PETScVector
 from dolfin.function.expression import BaseExpression
 from rbnics.backends.dolfin.wrapping.assemble_operator_for_stability_factor import assemble_operator_for_stability_factor
 from rbnics.backends.dolfin.wrapping.compute_theta_for_stability_factor import compute_theta_for_stability_factor
@@ -1046,11 +1046,11 @@ def forms_are_close(form_1, form_2):
     return tensors_are_close(tensor_assemble(form_1), tensor_assemble(form_2))
     
 @overload
-def tensors_are_close(tensor_1: GenericMatrix, tensor_2: GenericMatrix):
+def tensors_are_close(tensor_1: PETScMatrix, tensor_2: PETScMatrix):
     return isclose(tensor_1.norm("frobenius"), tensor_2.norm("frobenius"))
     
 @overload
-def tensors_are_close(tensor_1: GenericVector, tensor_2: GenericVector):
+def tensors_are_close(tensor_1: PETScVector, tensor_2: PETScVector):
     return isclose(tensor_1.norm("l2"), tensor_2.norm("l2"))
     
 @overload

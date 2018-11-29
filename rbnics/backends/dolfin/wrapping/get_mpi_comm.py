@@ -17,7 +17,7 @@
 #
 
 from dolfin import Function, FunctionSpace
-from dolfin.cpp.la import GenericMatrix, GenericVector
+from dolfin.cpp.la import PETScMatrix, PETScVector
 from rbnics.utils.decorators import overload, tuple_of
 
 @overload
@@ -35,6 +35,6 @@ def get_mpi_comm(V: tuple_of(FunctionSpace)):
     return get_mpi_comm(V[0])
     
 @overload
-def get_mpi_comm(tensor: (GenericMatrix, GenericVector)):
+def get_mpi_comm(tensor: (PETScMatrix, PETScVector)):
     mpi_comm = tensor.mpi_comm()
     return mpi_comm
