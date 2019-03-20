@@ -109,6 +109,7 @@ setup(name="RBniCS",
           "pytest-benchmark",
           "pytest-dependency",
           "pytest-flake8",
+          "pytest-gc",
           "pytest-html",
           "pytest-instafail",
           "pytest-xdist"
